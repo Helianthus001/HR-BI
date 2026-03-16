@@ -1,0 +1,1 @@
+import{r}from"./index-DBcXqVkZ.js";import{Y as e}from"./CategoricalChart-DIiiFrmz.js";import{b as t}from"./ChartConfig-7A-xip_1.js";var p=["axis"],m=r.forwardRef((a,o)=>r.createElement(t,{chartName:"ComposedChart",defaultTooltipEventType:"axis",validateTooltipEventTypes:p,tooltipPayloadSearcher:e,categoricalChartProps:a,ref:o}));export{m as C};
