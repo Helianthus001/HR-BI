@@ -1,6 +1,7 @@
 import React from 'react';
 import { PageContainer } from '@/src/components/ui/PageContainer';
 import { MetricCard } from '@/src/components/ui/MetricCard';
+import { Card as ChartPanel } from '@/src/components/ui/Card';
 
 // Mock Data
 const metrics = [
@@ -46,6 +47,14 @@ const metrics = [
   },
 ];
 
+const reportData = [
+  { bu: '智能制造部', proposal: 128, completeRate: 96.1, savedCost: 420, participation: 74.3, rank: 1 },
+  { bu: '新能源事业部', proposal: 112, completeRate: 95.3, savedCost: 368, participation: 71.8, rank: 2 },
+  { bu: '研发中心', proposal: 86, completeRate: 93.6, savedCost: 260, participation: 66.5, rank: 3 },
+  { bu: '供应链中心', proposal: 74, completeRate: 91.4, savedCost: 132, participation: 62.1, rank: 4 },
+  { bu: '职能支持中心', proposal: 56, completeRate: 88.9, savedCost: 70, participation: 54.8, rank: 5 },
+];
+
 export function CompetitionImprovementPage() {
   return (
     <PageContainer title="自主改善达成赛马表">
@@ -62,6 +71,37 @@ export function CompetitionImprovementPage() {
             className="hover:shadow-md transition-shadow duration-200"
           />
         ))}
+      </div>
+
+      <div className="mb-6">
+        <ChartPanel title="自主改善赛马报表" className="hover:shadow-md transition-shadow duration-200">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs text-slate-500 bg-slate-50 border-b border-slate-200">
+                <tr>
+                  <th className="px-4 py-3 font-medium">BU</th>
+                  <th className="px-4 py-3 font-medium text-right">改善提案数</th>
+                  <th className="px-4 py-3 font-medium text-right">完成率</th>
+                  <th className="px-4 py-3 font-medium text-right">节省成本(万元)</th>
+                  <th className="px-4 py-3 font-medium text-right">参与率</th>
+                  <th className="px-4 py-3 font-medium text-right">排名</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reportData.map((row) => (
+                  <tr key={row.bu} className="bg-white border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                    <td className="px-4 py-3 font-medium text-slate-800">{row.bu}</td>
+                    <td className="px-4 py-3 text-right text-slate-600">{row.proposal}</td>
+                    <td className="px-4 py-3 text-right text-slate-600">{row.completeRate}%</td>
+                    <td className="px-4 py-3 text-right text-slate-600">{row.savedCost}</td>
+                    <td className="px-4 py-3 text-right text-slate-600">{row.participation}%</td>
+                    <td className="px-4 py-3 text-right font-medium text-slate-800">Top {row.rank}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </ChartPanel>
       </div>
     </PageContainer>
   );

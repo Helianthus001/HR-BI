@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { PageContainer } from '@/src/components/ui/PageContainer';
 import { MetricCard } from '@/src/components/ui/MetricCard';
 import { Card as ChartPanel } from '@/src/components/ui/Card';
@@ -39,6 +39,11 @@ const salaryStructureData = [
   { name: '福利', value: 300, percent: 2 },
 ];
 
+const baseOptions = ['全部基地', '临淄基地', '青州基地', '张店基地', '越南基地', '印尼基地'];
+const deptOptions = ['全部部门', '研发中心', '生产系统', '营销中心', '职能支持'];
+const levelOptions = ['全部职级', 'P1', 'P2', 'P3', 'P4', 'P5'];
+const jobOptions = ['全部职务', '工程师', '班长', '主管', '经理', '总监'];
+
 // Tooltips
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
@@ -66,6 +71,12 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 export function CostSalaryPage() {
   const [hiddenKeys, setHiddenKeys] = useState<Record<string, boolean>>({});
+  const [base, setBase] = useState('全部基地');
+  const [dept, setDept] = useState('全部部门');
+  const [level, setLevel] = useState('全部职级');
+  const [job, setJob] = useState('全部职务');
+  const [startDate, setStartDate] = useState('2026-01-01');
+  const [endDate, setEndDate] = useState('2026-03-31');
 
   const toggleSeries = (dataKey: string) => {
     setHiddenKeys(prev => ({
@@ -74,7 +85,73 @@ export function CostSalaryPage() {
     }));
   };
 
-  const activeData = salaryStructureData.filter(item => !hiddenKeys[item.name]);
+  const dynamicSalaryData = useMemo(() => {
+    const start = new Date(`${startDate}T00:00:00`);
+    const end = new Date(`${endDate}T00:00:00`);
+    const validRange = !Number.isNaN(start.getTime()) && !Number.isNaN(end.getTime()) && start <= end;
+    const rangeDays = validRange
+      ? Math.max(1, Math.floor((end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000)) + 1)
+      : 90;
+    const timeScale = Math.max(0.6, Math.min(1.8, rangeDays / 90));
+
+    const baseFactorMap: Record<string, number> = {
+      '全部基地': 1,
+      '临淄基地': 1.12,
+      '青州基地': 0.98,
+      '张店基地': 0.92,
+      '越南基地': 0.84,
+      '印尼基地': 0.8,
+    };
+    const deptFactorMap: Record<string, number> = {
+      '全部部门': 1,
+      '研发中心': 0.9,
+      '生产系统': 1.15,
+      '营销中心': 1.05,
+      '职能支持': 0.87,
+    };
+    const levelFactorMap: Record<string, number> = {
+      '全部职级': 1,
+      'P1': 0.86,
+      'P2': 0.92,
+      'P3': 1.0,
+      'P4': 1.08,
+      'P5': 1.18,
+    };
+    const jobFactorMap: Record<string, number> = {
+      '全部职务': 1,
+      '工程师': 0.95,
+      '班长': 1.02,
+      '主管': 1.07,
+      '经理': 1.12,
+      '总监': 1.18,
+    };
+
+    const factor =
+      (baseFactorMap[base] ?? 1) *
+      (deptFactorMap[dept] ?? 1) *
+      (levelFactorMap[level] ?? 1) *
+      (jobFactorMap[job] ?? 1) *
+      timeScale;
+
+    const seeded = Array.from(`${base}|${dept}|${level}|${job}|${startDate}|${endDate}`)
+      .reduce((acc, ch, idx) => acc + ch.charCodeAt(0) * (idx + 1), 0);
+
+    const raw = salaryStructureData.map((item, index) => {
+      const wave = 1 + Math.sin((seeded % 37) * 0.05 + index * 0.85) * 0.06;
+      return {
+        ...item,
+        value: Math.max(1, Math.round(item.value * factor * wave)),
+      };
+    });
+
+    const total = raw.reduce((sum, item) => sum + item.value, 0);
+    return raw.map((item) => ({
+      ...item,
+      percent: Number(((item.value / total) * 100).toFixed(1)),
+    }));
+  }, [base, dept, level, job, startDate, endDate]);
+
+  const activeData = dynamicSalaryData.filter(item => !hiddenKeys[item.name]);
 
   return (
     <PageContainer title="薪酬分析">
@@ -96,6 +173,33 @@ export function CostSalaryPage() {
       {/* Row 2: Salary Structure Chart */}
       <div className="mb-6">
         <ChartPanel title="薪酬构成结构" className="hover:shadow-md transition-shadow duration-200">
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <select value={base} onChange={(e) => setBase(e.target.value)} className="text-xs border border-slate-200 rounded px-2 py-1 bg-white outline-none focus:ring-1 focus:ring-blue-500">
+              {baseOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+            <select value={dept} onChange={(e) => setDept(e.target.value)} className="text-xs border border-slate-200 rounded px-2 py-1 bg-white outline-none focus:ring-1 focus:ring-blue-500">
+              {deptOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+            <select value={level} onChange={(e) => setLevel(e.target.value)} className="text-xs border border-slate-200 rounded px-2 py-1 bg-white outline-none focus:ring-1 focus:ring-blue-500">
+              {levelOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+            <select value={job} onChange={(e) => setJob(e.target.value)} className="text-xs border border-slate-200 rounded px-2 py-1 bg-white outline-none focus:ring-1 focus:ring-blue-500">
+              {jobOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="text-xs border border-slate-200 rounded px-2 py-1 bg-white outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            <span className="text-slate-400 text-xs">-</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="text-xs border border-slate-200 rounded px-2 py-1 bg-white outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
           <div className="h-[450px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -110,7 +214,7 @@ export function CostSalaryPage() {
                   labelLine={{ stroke: '#94a3b8', strokeWidth: 1 }}
                 >
                   {activeData.map((entry, index) => {
-                    const originalIndex = salaryStructureData.findIndex(d => d.name === entry.name);
+                    const originalIndex = dynamicSalaryData.findIndex(d => d.name === entry.name);
                     return (
                       <Cell key={`cell-${index}`} fill={CHART_COLORS[originalIndex % CHART_COLORS.length]} />
                     );
@@ -121,7 +225,7 @@ export function CostSalaryPage() {
                   {...({
                     wrapperStyle: { fontSize: '12px', paddingTop: '20px' },
                     onClick: (e: any) => toggleSeries(e.value),
-                    payload: salaryStructureData.map((item, index) => ({
+                    payload: dynamicSalaryData.map((item, index) => ({
                       id: item.name,
                       type: 'circle',
                       value: item.name,

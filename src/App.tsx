@@ -3,64 +3,109 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { MainLayout } from './components/layout/MainLayout';
-import { OrgScalePage } from './pages/org/Scale';
-import { OrgStructurePage } from './pages/org/Structure';
-import { OrgEfficiencyPage } from './pages/org/Efficiency';
-import { OrgTurnoverPage } from './pages/org/Turnover';
-import { EfficiencyPerCapitaPage } from './pages/efficiency/PerCapita';
-import { RecruitmentAchievementPage } from './pages/recruitment/Achievement';
-import { RecruitmentHeadcountPage } from './pages/recruitment/Headcount';
-import { CostSalaryPage } from './pages/cost/Salary';
-import { CostOvertimePage } from './pages/cost/Overtime';
-import { CostRatioPage } from './pages/cost/Ratio';
-import { TalentDensityPage } from './pages/talent/Density';
-import { TalentRetentionPage } from './pages/talent/Retention';
-import { TalentStructurePage } from './pages/talent/Structure';
-import { CompetitionRecruitmentPage } from './pages/competition/Recruitment';
-import { CompetitionBPPage } from './pages/competition/BP';
-import { CompetitionImprovementPage } from './pages/competition/Improvement';
-import { CompetitionTrainingPage } from './pages/competition/Training';
-import { PlaceholderPage } from './pages/PlaceholderPage';
+
+const OrgScalePage = lazy(() =>
+  import('./pages/org/Scale').then((module) => ({ default: module.OrgScalePage })),
+);
+const OrgStructurePage = lazy(() =>
+  import('./pages/org/Structure').then((module) => ({ default: module.OrgStructurePage })),
+);
+const OrgEfficiencyPage = lazy(() =>
+  import('./pages/org/Efficiency').then((module) => ({ default: module.OrgEfficiencyPage })),
+);
+const OrgTurnoverPage = lazy(() =>
+  import('./pages/org/Turnover').then((module) => ({ default: module.OrgTurnoverPage })),
+);
+const EfficiencyPerCapitaPage = lazy(() =>
+  import('./pages/efficiency/PerCapita').then((module) => ({
+    default: module.EfficiencyPerCapitaPage,
+  })),
+);
+const RecruitmentAchievementPage = lazy(() =>
+  import('./pages/recruitment/Achievement').then((module) => ({
+    default: module.RecruitmentAchievementPage,
+  })),
+);
+const RecruitmentHeadcountPage = lazy(() =>
+  import('./pages/recruitment/Headcount').then((module) => ({
+    default: module.RecruitmentHeadcountPage,
+  })),
+);
+const CostSalaryPage = lazy(() =>
+  import('./pages/cost/Salary').then((module) => ({ default: module.CostSalaryPage })),
+);
+const CostOvertimePage = lazy(() =>
+  import('./pages/cost/Overtime').then((module) => ({ default: module.CostOvertimePage })),
+);
+const CostRatioPage = lazy(() =>
+  import('./pages/cost/Ratio').then((module) => ({ default: module.CostRatioPage })),
+);
+const TalentDensityPage = lazy(() =>
+  import('./pages/talent/Density').then((module) => ({ default: module.TalentDensityPage })),
+);
+const TalentRetentionPage = lazy(() =>
+  import('./pages/talent/Retention').then((module) => ({ default: module.TalentRetentionPage })),
+);
+const TalentStructurePage = lazy(() =>
+  import('./pages/talent/Structure').then((module) => ({ default: module.TalentStructurePage })),
+);
+const CompetitionRecruitmentPage = lazy(() =>
+  import('./pages/competition/Recruitment').then((module) => ({
+    default: module.CompetitionRecruitmentPage,
+  })),
+);
+const CompetitionBPPage = lazy(() =>
+  import('./pages/competition/BP').then((module) => ({ default: module.CompetitionBPPage })),
+);
+const CompetitionImprovementPage = lazy(() =>
+  import('./pages/competition/Improvement').then((module) => ({
+    default: module.CompetitionImprovementPage,
+  })),
+);
+const CompetitionTrainingPage = lazy(() =>
+  import('./pages/competition/Training').then((module) => ({
+    default: module.CompetitionTrainingPage,
+  })),
+);
+
+function RouteFallback() {
+  return (
+    <div className="flex h-full min-h-0 items-center justify-center bg-slate-50 text-sm text-slate-500">
+      Loading...
+    </div>
+  );
+}
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<Navigate to="/org/scale" replace />} />
-          
-          {/* 组织分析 */}
-          <Route path="org/scale" element={<OrgScalePage />} />
-          <Route path="org/structure" element={<OrgStructurePage />} />
-          <Route path="org/efficiency" element={<OrgEfficiencyPage />} />
-          <Route path="org/turnover" element={<OrgTurnoverPage />} />
-          
-          {/* 人效分析 */}
-          <Route path="efficiency/per-capita" element={<EfficiencyPerCapitaPage />} />
-          
-          {/* 招聘分析 */}
-          <Route path="recruitment/achievement" element={<RecruitmentAchievementPage />} />
-          <Route path="recruitment/headcount" element={<RecruitmentHeadcountPage />} />
-          
-          {/* 人力成本 */}
-          <Route path="cost/salary" element={<CostSalaryPage />} />
-          <Route path="cost/overtime" element={<CostOvertimePage />} />
-          <Route path="cost/ratio" element={<CostRatioPage />} />
-          
-          {/* 人才分析 */}
-          <Route path="talent/density" element={<TalentDensityPage />} />
-          <Route path="talent/retention" element={<TalentRetentionPage />} />
-          <Route path="talent/structure" element={<TalentStructurePage />} />
-          
-          {/* 人力赛马 */}
-          <Route path="competition/recruitment" element={<CompetitionRecruitmentPage />} />
-          <Route path="competition/bp" element={<CompetitionBPPage />} />
-          <Route path="competition/improvement" element={<CompetitionImprovementPage />} />
-          <Route path="competition/training" element={<CompetitionTrainingPage />} />
-        </Route>
-      </Routes>
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<Navigate to="/org/scale" replace />} />
+            <Route path="org/scale" element={<OrgScalePage />} />
+            <Route path="org/structure" element={<OrgStructurePage />} />
+            <Route path="org/efficiency" element={<OrgEfficiencyPage />} />
+            <Route path="org/turnover" element={<OrgTurnoverPage />} />
+            <Route path="efficiency/per-capita" element={<EfficiencyPerCapitaPage />} />
+            <Route path="recruitment/achievement" element={<RecruitmentAchievementPage />} />
+            <Route path="recruitment/headcount" element={<RecruitmentHeadcountPage />} />
+            <Route path="cost/salary" element={<CostSalaryPage />} />
+            <Route path="cost/overtime" element={<CostOvertimePage />} />
+            <Route path="cost/ratio" element={<CostRatioPage />} />
+            <Route path="talent/density" element={<TalentDensityPage />} />
+            <Route path="talent/retention" element={<TalentRetentionPage />} />
+            <Route path="talent/structure" element={<TalentStructurePage />} />
+            <Route path="competition/recruitment" element={<CompetitionRecruitmentPage />} />
+            <Route path="competition/bp" element={<CompetitionBPPage />} />
+            <Route path="competition/improvement" element={<CompetitionImprovementPage />} />
+            <Route path="competition/training" element={<CompetitionTrainingPage />} />
+          </Route>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }
