@@ -5,11 +5,9 @@ import {defineConfig, loadEnv} from 'vite';
 
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
-  // 只在生产构建时设置 base（开发时保持默认 /）
-  const isProduction = mode === 'production';
   return {
     plugins: [react(), tailwindcss()],
-    base: isProduction ? '/HR-BI/' : '/',
+    base: '/hr-bi/',
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
     },
