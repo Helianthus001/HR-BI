@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PageContainer } from '@/src/components/ui/PageContainer';
+import { MetricCard } from '@/src/components/ui/MetricCard';
 import { Card as ChartPanel } from '@/src/components/ui/Card';
 import {
   BarChart,
@@ -30,6 +31,14 @@ const CHART_COLORS = [
 ];
 
 // Mock Data
+const metrics = [
+  { id: '1', title: '集团人均产值', value: '186.4', suffix: '万元/人', trend: 'up' as const, trendValue: '4.8%' },
+  { id: '2', title: '制造人均产值', value: '201.8', suffix: '万元/人', trend: 'up' as const, trendValue: '5.3%' },
+  { id: '3', title: '非制造人均产值', value: '168.9', suffix: '万元/人', trend: 'up' as const, trendValue: '3.6%' },
+  { id: '4', title: '人效同比', value: '6.2', suffix: '%', trend: 'up' as const, trendValue: '1.4%' },
+  { id: '5', title: '人效最高BU', value: '生产一部', suffix: '', trend: 'up' as const, trendValue: '连续3月领先' },
+];
+
 const months = ['2025.04', '2025.05', '2025.06', '2025.07', '2025.08', '2025.09', '2025.10', '2025.11', '2025.12', '2026.01', '2026.02', '2026.03'];
 
 const trendData = months.map((month, index) => {
@@ -116,6 +125,20 @@ export function EfficiencyPerCapitaPage() {
 
   return (
     <PageContainer title="人均产值分析">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-6">
+        {metrics.map((metric) => (
+          <MetricCard
+            key={metric.id}
+            title={metric.title}
+            value={metric.value}
+            suffix={metric.suffix}
+            trend={metric.trend}
+            trendValue={metric.trendValue}
+            className="hover:shadow-md transition-shadow duration-200"
+          />
+        ))}
+      </div>
+
       {/* Row 1: Combined Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <ChartPanel 
